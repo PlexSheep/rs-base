@@ -35,7 +35,7 @@ jobs:
       - name: cargo clippy fix
         run: cargo clippy --fix --all-features --all-targets --workspace
       - name: cargo fmt
-        run: cargo fmt --all --workspace
+        run: cargo fmt --all
       - name: cargo test
         run: cargo test --all-features --all-targets --workspace
       - name: commit back to repository
