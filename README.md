@@ -1,4 +1,4 @@
-# rs-base
+# base
 
 <!-- TODO: replace 'base' with crate name and remove comments -->
 ![Project badge](https://img.shields.io/badge/language-Rust-blue.svg)

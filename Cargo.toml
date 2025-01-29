@@ -7,8 +7,8 @@ authors = ["Christoph J. Scherr <software@cscherr.de>"]
 license = "GPL-3.0-or-later"
 description = "No description yet"
 readme = "README.md"
-homepage = "https://git.cscherr.de/PlexSheep/rs-base"
-repository = "https://git.cscherr.de/PlexSheep/rs-base"
+homepage = "https://github.com/PlexSheep/rs-base"
+repository = "https://github.com/PlexSheep/rs-base"
 keywords = ["template"]
 
 
