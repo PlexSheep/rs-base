@@ -2,11 +2,11 @@ name: Rust CI
 on:
   pull_request:
     branches:
-      - '**'
+      - "**"
   push:
     branches:
-      - 'master'
-      - 'devel'
+      - "master"
+      - "devel"
 
 env:
   CARGO_TERM_COLOR: always
@@ -46,7 +46,7 @@ jobs:
       - name: commit back to repository
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          # These defaults somehow do not work for me, so I've set them 
+          # These defaults somehow do not work for me, so I've set them
           # explicitly
           # The big number is the userid of the bot
           commit_user_name: github-actions[bot]

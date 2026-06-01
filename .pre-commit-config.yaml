@@ -5,18 +5,18 @@
 repos:
   - repo: local
     hooks:
+      - id: clippy fix
+        name: fix easy clippy stuff
+        entry: cargo clippy --fix --allow-dirty
+        language: rust
+        pass_filenames: false
+        fail_fast: true
       - id: clippy check
         name: check for bad things in rust code
         entry: cargo clippy --workspace
         language: rust
         pass_filenames: false
         always_run: true
-        fail_fast: true
-      - id: clippy fix
-        name: fix easy clippy stuff
-        entry: cargo clippy --fix --allow-dirty
-        language: rust
-        pass_filenames: false
         fail_fast: true
   # common checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
