@@ -1,0 +1,37 @@
+# NOTE: It's important that you run pre-commit install --hook-type commit-msg,
+# even if you've already used pre-commit install before. pre-commit install
+# does not install commit-msg hooks by default!
+
+repos:
+  - repo: local
+    hooks:
+      - id: clippy check
+        name: check for bad things in rust code
+        entry: cargo clippy --workspace
+        language: rust
+        pass_filenames: false
+        always_run: true
+        fail_fast: true
+  # common checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-yaml
+      - id: check-toml
+      - id: check-symlinks
+      - id: destroyed-symlinks
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: forbid-submodules
+  # code spellcheck
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.47.0
+    hooks:
+      - id: typos-src # compile with cargo
+  # lints git commit messages
+  - repo: https://github.com/jorisroovers/gitlint
+    rev: v0.19.1 # Fill in a tag / sha here (e.g. v0.19.1)
+    hooks:
+      - id: gitlint
+        args: [--ignore, body-is-missing, --staged, --msg-filename]
