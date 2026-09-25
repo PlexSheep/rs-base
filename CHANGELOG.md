@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 
 - Pre-commit changelog
 
+### 🐛 Bug Fixes
+
+- Pre-commit script only installed one hook type
+
 ### 📚 Documentation
 
 - Update license
