@@ -1,6 +1,7 @@
-# NOTE: It's important that you run pre-commit install --hook-type commit-msg,
-# even if you've already used pre-commit install before. pre-commit install
-# does not install commit-msg hooks by default!
+default_install_hook_types:
+  - pre-commit
+  - post-commit
+  - commit-msg
 
 repos:
   - repo: local
@@ -32,12 +33,34 @@ repos:
       - id: forbid-submodules
   # code spellcheck
   - repo: https://github.com/crate-ci/typos
-    rev: v1.47.0
+    rev: v1.50.2
     hooks:
-      - id: typos-src # compile with cargo
+      - id: typos
   # lints git commit messages
   - repo: https://github.com/jorisroovers/gitlint
     rev: v0.19.1 # Fill in a tag / sha here (e.g. v0.19.1)
     hooks:
       - id: gitlint
         args: [--ignore, body-is-missing, --staged, --msg-filename]
+  - repo: local
+    hooks:
+      - id: git-cliff-changelog
+        name: git-cliff-changelog
+        entry: >-
+          bash -c '
+            LAST_TAG=$(bash -c "git tag --sort=committerdate|tail -n 1")
+            TAG=v$(cargo metadata --format-version 1| jq -r '.packages[0].version')
+            if [[ "$LAST_TAG" == "$TAG" ]]; then
+                TAG=""
+            fi
+            echo $TAG
+            git-cliff -t "$TAG" -o CHANGELOG.md &&
+            if ! git diff --quiet -- CHANGELOG.md; then
+                git add CHANGELOG.md &&
+                git commit --amend --no-edit --no-verify
+            fi
+          '
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [post-commit]
