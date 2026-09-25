@@ -16,8 +16,8 @@ jobs:
           fetch-depth: 0
       - name: Setup Environment
         run: |
-          echo "PKG_NAME=$(grep -Po '(?<=^name = ")[^"]*(?=".*)' Cargo.toml)" >> "$GITHUB_ENV"
-          echo "PKG_VERSION=$(grep -Po '(?<=^version = ")[^"]*(?=".*)' Cargo.toml)" >> "$GITHUB_ENV"
+          echo "PKG_NAME=$(cargo metadata --no-deps --format-version 1| jq -r '.packages[0].name')" >> "$GITHUB_ENV"
+          echo "PKG_VERSION=$(cargo metadata --no-deps --format-version 1| jq -r '.packages[0].name')" >> "$GITHUB_ENV"
       - uses: actions/cache/restore@v5
         id: cache-release
         with:

@@ -17,53 +17,108 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+      - name: Setup Environment
+        run: |
+          echo "PKG_NAME=$(cargo metadata --no-deps --format-version 1| jq -r '.packages[0].name')" >> "$GITHUB_ENV"
+          echo "PKG_VERSION=$(cargo metadata --no-deps --format-version 1| jq -r '.packages[0].name')" >> "$GITHUB_ENV"
+      - uses: actions/cache/restore@v5
+        with:
+          path: |
+            target
+            /root/.rustup
+            /root/.cargo
+          key: ${{ env.PKG_NAME }}-${{ runner.os }}
       - name: Install Rust toolchain
-        uses: https://github.com/dtolnay/rust-toolchain@stable
-      - uses: https://github.com/Swatinem/rust-cache@v2
+        uses: https://git.cscherr.de/actions/rust-toolchain@stable
       - name: Run tests
         run: cargo test --all-features --workspace
+      - uses: actions/cache/save@v5
+        with:
+          path: |
+            target
+            /root/.rustup
+            /root/.cargo
+          key: ${{ env.PKG_NAME }}-${{ runner.os }}
 
   clippy:
-    permissions:
-      # Give the default GITHUB_TOKEN write permission to commit and push the
-      # added or changed files to the repository.
-      contents: write
     name: Clippy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+      - name: Setup Environment
+        run: |
+          echo "PKG_NAME=$(cargo metadata --no-deps --format-version 1| jq -r '.packages[0].name')" >> "$GITHUB_ENV"
+          echo "PKG_VERSION=$(cargo metadata --no-deps --format-version 1| jq -r '.packages[0].name')" >> "$GITHUB_ENV"
+      - uses: actions/cache/restore@v5
+        with:
+          path: |
+            target
+            /root/.rustup
+            /root/.cargo
+          key: ${{ env.PKG_NAME }}-${{ runner.os }}
       - name: Install Rust toolchain
-        uses: https://github.com/dtolnay/rust-toolchain@stable
+        uses: https://git.cscherr.de/actions/rust-toolchain@stable
         with:
           components: clippy,rustfmt
-      - uses: https://github.com/Swatinem/rust-cache@v2
       - name: Clippy check and fix
         run: cargo clippy --fix --all-features --workspace
       - name: Check formatting
         run: cargo fmt --all
       - name: commit back to repository
-        uses: https://github.com/stefanzweifel/git-auto-commit-action@v7
-        # with:
-        #   # These defaults somehow do not work for me, so I've set them
-        #   # explicitly
-        #   # The big number is the userid of the bot
-        #   commit_user_name: github-actions[bot]
-        #   commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
-        #   commit_author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com> # defaults to "username <username@users.noreply.github.com>", where "username" belongs to the author of the commit that triggered the run
-        #   commit_message: "ci: automatic Rust CI changes"
+        uses: https://git.cscherr.de/actions/git-auto-commit-action@v7
+        with:
+          commit_user_name: forgejo-actions
+          commit_user_email: forgejo-actions@cscherr.de
+          commit_author: "forgejo-actions <forgejo-actions@cscherr.de>"
+          commit_message: "chore(ci): automatic Rust CI changes"
 
   docs:
     name: Docs
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+      - name: Setup Environment
+        run: |
+          echo "PKG_NAME=$(cargo metadata --no-deps --format-version 1| jq -r '.packages[0].name')" >> "$GITHUB_ENV"
+          echo "PKG_VERSION=$(cargo metadata --no-deps --format-version 1| jq -r '.packages[0].name')" >> "$GITHUB_ENV"
+      - uses: actions/cache/restore@v5
+        with:
+          path: |
+            target
+            /root/.rustup
+            /root/.cargo
+          key: ${{ env.PKG_NAME }}-${{ runner.os }}
       - name: Install Rust toolchain
-        uses: https://github.com/dtolnay/rust-toolchain@stable
-      - uses: https://github.com/Swatinem/rust-cache@v2
+        uses: https://git.cscherr.de/actions/rust-toolchain@stable
       - name: Check documentation
         env:
           RUSTDOCFLAGS: -D warnings
         run: cargo doc --no-deps --document-private-items --all-features --workspace --examples
+
+  msrv:
+    name: Check compatible rust version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Setup Environment
+        run: |
+          echo "PKG_NAME=$(cargo metadata --no-deps --format-version 1| jq -r '.packages[0].name')" >> "$GITHUB_ENV"
+          echo "PKG_VERSION=$(cargo metadata --no-deps --format-version 1| jq -r '.packages[0].name')" >> "$GITHUB_ENV"
+      - uses: actions/cache/restore@v5
+        with:
+          path: |
+            target
+            /root/.rustup
+            /root/.cargo
+          key: ${{ env.PKG_NAME }}-${{ runner.os }}
+      - name: Install Rust toolchain
+        uses: https://git.cscherr.de/actions/rust-toolchain@stable
+      - uses: https://git.cscherr.de/actions/cargo-binstall@main
+      - name: install cargo-msrv
+        run: cargo binstall cargo-msrv --force
+      - name: Verify rust version
+        run: cargo msrv verify

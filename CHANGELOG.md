@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 
 - Pre-commit script only installed one hook type
 - Changelog used wrong version of current crate
+- Update ci cargo
 
 ### 📚 Documentation
 
