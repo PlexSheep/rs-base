@@ -28,6 +28,9 @@ jobs:
       - name: Install Rust toolchain
         uses: https://git.cscherr.de/actions/rust-toolchain@stable
       - uses: https://git.cscherr.de/actions/cargo-binstall@main
+      - name: Setup Environment (2)
+        run: |
+          echo "PKG_VERSION=$(cargo metadata --no-deps --format-version 1| jq -r '.packages[0].version')" >> "$GITHUB_ENV"
       - name: Run tests
         run: cargo test --all-features --workspace
       - name: Cargo publish
@@ -45,6 +48,6 @@ jobs:
             /root/.cargo
           key: ${{ env.PKG_NAME }}-${{ runner.os }}-release
       - name: just tag
-        run: git tag v${{ steps.metadata.outputs.package_version }} HEAD
+        run: git tag v${{ env.PKG_VERSION }} HEAD
       - name: just push tags
         run: git push --tags

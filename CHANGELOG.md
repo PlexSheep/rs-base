@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - Changelog used wrong version of current crate
 - Update ci cargo
 - Cache hen-egg problem in ci
+- Release ci didnt get the tag right
 
 ### 📚 Documentation
 
