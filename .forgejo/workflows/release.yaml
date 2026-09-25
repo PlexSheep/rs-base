@@ -1,8 +1,4 @@
-name: Release-plz
-
-permissions:
-  pull-requests: write
-  contents: write
+name: Release
 
 on:
   push:
@@ -10,24 +6,46 @@ on:
       - master
 
 jobs:
-  release-plz:
-    name: Release-plz
+  release:
+    name: Release
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - name: Install Rust toolchain
-        uses: https://github.com/dtolnay/rust-toolchain@stable
-      - name: Install cargo-binstall
-        run: curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-      - name: Run release-plz
-        uses: https://github.com/MarcoIeni/release-plz-action@v0.5
+      - name: Setup Environment
+        run: |
+          echo "PKG_NAME=$(grep -Po '(?<=^name = ")[^"]*(?=".*)' Cargo.toml)" >> "$GITHUB_ENV"
+          echo "PKG_VERSION=$(grep -Po '(?<=^version = ")[^"]*(?=".*)' Cargo.toml)" >> "$GITHUB_ENV"
+      - uses: actions/cache/restore@v5
+        id: cache-release
         with:
-          forge: "gitea"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          path: |
+            target
+            /root/.rustup
+            /root/.cargo
+          key: ${{ env.PKG_NAME }}-${{ runner.os }}-release
+      - name: Install Rust toolchain
+        uses: https://git.cscherr.de/actions/rust-toolchain@stable
+      - uses: https://git.cscherr.de/actions/cargo-binstall@main
+      - name: Run tests
+        run: cargo test --all-features --workspace
+      - name: Cargo publish
+        uses: https://git.cscherr.de/actions/action-cargo-publish@v0.1.0
+        with:
+          path: "."
+          token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          dry-run: false
+      - uses: actions/cache/save@v5
+        id: cache-release
+        with:
+          path: |
+            target
+            /root/.rustup
+            /root/.cargo
+          key: ${{ env.PKG_NAME }}-${{ runner.os }}-release
+      - name: just tag
+        run: git tag v${{ steps.metadata.outputs.package_version }} HEAD
+      - name: just push tags
+        run: git push --tags
