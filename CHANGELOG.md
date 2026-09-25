@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 ### 🐛 Bug Fixes
 
 - Pre-commit script only installed one hook type
+- Changelog used wrong version of current crate
 
 ### 📚 Documentation
 
